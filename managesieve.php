@@ -12,10 +12,7 @@ class ManageSieve {
 	public $active_script;
 
 	/**
-	 * Constructor for the ManageSieve class. Handles the process of
-	 * connecting to the ManageSieve server, issuing a STARTTLS command,
-	 * and authenticating the user. If any part of that process fails an
-	 * exception is expected to be thrown.
+	 * Constructor for the ManageSieve class.
 	 */
 	public function __construct($hostname, $port, $sasl_mechanism, $username, $password) {
 		$this->remote_address = 'tcp://' . $hostname . ':' . $port;
@@ -56,8 +53,7 @@ class ManageSieve {
 
 	/**
 	 * A function to abstract away the details of receiving data from the server.
-	 * This function populates the $response variable and returns the data it receives.
-	 * The response is automatically checked.
+	 * This function populates the $response variable. TODO: write better docs here.
 	 */
 	private function get_response() {
 		$this->response = fread($this->socket, 1024);
@@ -104,9 +100,7 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function implements the LISTSCRIPTS command. It populates the $scripts
-	 * array with a cleaned-up list of scripts the user currently has on the server.
-	 * It also populates the $active_script variable if an active script is found.
+	 * This function implements the LISTSCRIPTS command.
 	 */
 	public function list_scripts() {
 		$this->send_line('LISTSCRIPTS');
@@ -125,8 +119,7 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function implements the SETACTIVE command. It also calls list_scripts()
-	 * to update $scripts and $active_script.
+	 * This function implements the SETACTIVE command.
 	 */
 	public function set_active($script) {
 		$this->send_line("SETACTIVE \"${script}\"");
@@ -144,7 +137,7 @@ class ManageSieve {
 
 	/**
 	 * Destructor for the ManageSieve class. A LOGOUT command is politely
-	 * issued to the server before the socket is shut down.
+	 * issued to the server to close the connection before the socket is shut down.
 	 */
 	public function __destruct() {
 		$this->send_line('LOGOUT');
