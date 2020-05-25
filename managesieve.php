@@ -31,7 +31,6 @@ class ManageSieve {
 		$this->get_response();
 
 		$this->send_line('STARTTLS');
-		$this->get_response();
 
 		if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
 			throw new Exception('STARTTLS negotiation failed.');
@@ -89,6 +88,7 @@ class ManageSieve {
 	 */
 	private function send_line($line) {
 		fwrite($this->socket, "${line}\r\n");
+		$this->get_response();
 	}
 
 	/**
@@ -101,17 +101,13 @@ class ManageSieve {
 			case 'PLAIN':
 				$auth_string = base64_encode("\0${username}\0${password}");
 				$this->send_line("AUTHENTICATE \"PLAIN\" \"${auth_string}\"");
-				$this->get_response();
 				break;
 			case 'LOGIN':
 				$this->send_line('AUTHENTICATE "LOGIN"');
-				$this->get_response();
 				$auth_string = '"' . base64_encode($username) . '"';
 				$this->send_line($auth_string);
-				$this->get_response();
 				$auth_string = '"' . base64_encode($password) . '"';
 				$this->send_line($auth_string);
-				$this->get_response();
 				break;
 			default:
 				throw new Exception('"Unsupported authentication mechanism."');
@@ -123,7 +119,6 @@ class ManageSieve {
 	 */
 	public function list_scripts() {
 		$this->send_line('LISTSCRIPTS');
-		$this->get_response();
 		/* Split the response into an array of strings. */
 		$this->scripts = preg_split('/\r\n/', $this->response);
 		/* Remove any empty strings from the array. */
@@ -142,7 +137,6 @@ class ManageSieve {
 	 */
 	public function set_active($script) {
 		$this->send_line("SETACTIVE \"${script}\"");
-		$this->get_response();
 		$this->list_scripts();
 	}
 
@@ -151,7 +145,6 @@ class ManageSieve {
 	 */
 	public function get_script($script) {
 		$this->send_line("GETSCRIPT \"${script}\"");
-		$this->get_response();
 	}
 
 	/**
@@ -160,7 +153,6 @@ class ManageSieve {
 	 */
 	public function __destruct() {
 		$this->send_line('LOGOUT');
-		$this->get_response();
 		stream_socket_shutdown($this->socket, STREAM_SHUT_RDWR);
 	}
 }
