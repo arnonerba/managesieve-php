@@ -4,7 +4,6 @@
  * This file defines the ManageSieve class.
  */
 class ManageSieve {
-	private $remote_address;
 	private $socket;
 
 	/* $response contains the raw data received from the ManageSieve server. */
@@ -24,11 +23,9 @@ class ManageSieve {
 	 * Constructor for the ManageSieve class.
 	 */
 	public function __construct($hostname, $port, $sasl_mechanism, $username, $password) {
-		$this->remote_address = 'tcp://' . $hostname . ':' . $port;
-
-		$this->socket = stream_socket_client($this->remote_address);
+		$this->socket = stream_socket_client("tcp://{$hostname}:{$port}");
 		if (!$this->socket) {
-			throw new Exception('Connecting to ManageSieve socket failed.');
+			throw new Exception('Failed to connect to ManageSieve server.');
 		}
 
 		stream_set_timeout($this->socket, 15);
