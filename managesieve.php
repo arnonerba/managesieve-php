@@ -177,6 +177,17 @@ class ManageSieve {
 	}
 
 	/**
+	 * This function implements the NOOP command.
+	 */
+	public function noop($tag) {
+		if ($tag) {
+			$this->send_line("NOOP \"{$tag}\"");
+		} else {
+			$this->send_line('NOOP');
+		}
+	}
+
+	/**
 	 * Destructor for the ManageSieve class. A LOGOUT command is politely
 	 * issued to the server to close the connection before the socket is shut down.
 	 */
