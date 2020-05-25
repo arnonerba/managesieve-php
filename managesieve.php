@@ -70,6 +70,14 @@ class ManageSieve {
 			case 'BYE':
 				/* If the server returns 'BYE' we cannot proceed. */
 				throw new Exception('Server closed the connection.');
+			case '"VXNlcm5hbWU6"':
+				/* LOGIN mechanism sends 'Username:' prompt in Base64. */
+				$this->error = false;
+				break;
+			case '"UGFzc3dvcmQ6"':
+				/* LOGIN mechanism sends 'Password:' prompt in Base64. */
+				$this->error = false;
+				break;
 			default:
 				throw new Exception("Server replied with unknown status {$this->status}.");
 		}
@@ -104,6 +112,9 @@ class ManageSieve {
 			case 'PLAIN':
 				$auth_string = base64_encode("\0${username}\0${password}");
 				$this->send_line("AUTHENTICATE \"PLAIN\" \"${auth_string}\"");
+				if ($this->error) {
+					throw new Exception('Bad credentials or server does not support PLAIN.');
+				}
 				break;
 			case 'LOGIN':
 				$this->send_line('AUTHENTICATE "LOGIN"');
@@ -111,9 +122,12 @@ class ManageSieve {
 				$this->send_line($auth_string);
 				$auth_string = '"' . base64_encode($password) . '"';
 				$this->send_line($auth_string);
+				if ($this->error) {
+					throw new Exception('Bad credentials or server does not support LOGIN.');
+				}
 				break;
 			default:
-				throw new Exception('"Unsupported authentication mechanism."');
+				throw new Exception('Unsupported authentication mechanism.');
 		}
 	}
 
