@@ -154,7 +154,9 @@ class ManageSieve {
 	 */
 	public function set_active($script) {
 		$this->send_line("SETACTIVE \"${script}\"");
-		$this->list_scripts();
+		if (!$this->error) {
+			$this->list_scripts();
+		}
 	}
 
 	/**
