@@ -38,9 +38,6 @@ class ManageSieve {
 		$this->get_response();
 
 		$this->authenticate($sasl_mechanism, $username, $password);
-
-		/* Populate $scripts and $active_script. */
-		$this->list_scripts();
 	}
 
 	private function check_response() {
