@@ -78,10 +78,8 @@ class ManageSieve {
 	private function authenticate($sasl_mechanism, $username, $password) {
 		switch ($sasl_mechanism) {
 			case 'PLAIN':
-				$this->send_line('AUTHENTICATE "PLAIN"');
-				$this->get_response();
-				$auth_string = '"' . base64_encode("\0${username}\0${password}") . '"';
-				$this->send_line($auth_string);
+				$auth_string = base64_encode("\0${username}\0${password}");
+				$this->send_line("AUTHENTICATE \"PLAIN\" \"${auth_string}\"");
 				$this->get_response();
 				break;
 			case 'LOGIN':
