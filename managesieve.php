@@ -117,18 +117,18 @@ class ManageSieve {
 	private function authenticate($sasl_mechanism, $username, $password) {
 		switch ($sasl_mechanism) {
 			case 'PLAIN':
-				$auth_string = base64_encode("\0${username}\0${password}");
-				$this->send_line("AUTHENTICATE \"PLAIN\" \"${auth_string}\"");
+				$base64_string = base64_encode("\0{$username}\0{$password}");
+				$this->send_line("AUTHENTICATE \"PLAIN\" \"{$base64_string}\"");
 				if ($this->error) {
 					throw new Exception('Bad credentials or server does not support PLAIN.');
 				}
 				break;
 			case 'LOGIN':
 				$this->send_line('AUTHENTICATE "LOGIN"');
-				$auth_string = '"' . base64_encode($username) . '"';
-				$this->send_line($auth_string);
-				$auth_string = '"' . base64_encode($password) . '"';
-				$this->send_line($auth_string);
+				$base64_string = base64_encode($username);
+				$this->send_line("\"{$base64_string}\"");
+				$base64_string = base64_encode($password);
+				$this->send_line("\"{$base64_string}\"");
 				if ($this->error) {
 					throw new Exception('Bad credentials or server does not support LOGIN.');
 				}
