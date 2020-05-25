@@ -134,7 +134,7 @@ class ManageSieve {
 				}
 				break;
 			default:
-				throw new Exception('Unsupported authentication mechanism.');
+				throw new Exception('Chosen SASL authentication mechanism is unsupported.');
 		}
 	}
 
