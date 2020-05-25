@@ -148,17 +148,15 @@ class ManageSieve {
 	 */
 	public function list_scripts() {
 		$this->send_line('LISTSCRIPTS');
-		/* Split the response into an array of strings. */
-		$this->scripts = preg_split('/\r\n/', $this->response);
-		/* Remove any empty strings from the array. */
-		$this->scripts = array_filter($this->scripts);
-		/* Remove the 'OK' response the ManageSieve server returns along with the script names. */
-		array_pop($this->scripts);
-		/* Get the active script (if there is one). */
-		$this->active_script = implode(array_filter($this->scripts, function($i) { return preg_match('/ \bACTIVE\b$/i', $i); }));
-		/* Finally, clean up both $scripts and $active_script. */
-		$this->scripts = preg_replace('/ \bACTIVE\b$/i', '', $this->scripts);
-		$this->active_script = preg_replace('/ \bACTIVE\b$/i', '', $this->active_script);
+		if (!$this->error) {
+			/* Split the response into an array of strings. */
+			$this->scripts = explode(PHP_EOL, $this->response);
+			/* Get the active script (if there is one). */
+			$this->active_script = implode(array_filter($this->scripts, function($i) { return preg_match('/ \bACTIVE\b$/i', $i); }));
+			/* Clean up both $scripts and $active_script. */
+			$this->scripts = preg_replace('/ \bACTIVE\b$/i', '', $this->scripts);
+			$this->active_script = preg_replace('/ \bACTIVE\b$/i', '', $this->active_script);
+		}
 	}
 
 	/**
