@@ -31,6 +31,9 @@ class ManageSieve {
 		$this->get_response();
 
 		$this->send_line('STARTTLS');
+		if ($this->error) {
+			throw new Exception('Server does not support STARTTLS.');
+		}
 
 		if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
 			throw new Exception('STARTTLS negotiation failed.');
