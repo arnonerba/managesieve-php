@@ -33,10 +33,6 @@ class ManageSieve {
 
 		$this->starttls();
 
-		if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-			throw new Exception('STARTTLS negotiation failed.');
-		}
-
 		/* Get the updated banner now that we are using TLS. */
 		$this->get_response();
 
@@ -100,12 +96,18 @@ class ManageSieve {
 		$this->get_response();
 	}
 
+	/**
+	 * This function implements the STARTTLS command and negotiates a TLS connection.
+	 */
 	private function starttls() {
 		$this->send_line('STARTTLS');
 		if ($this->error) {
 			throw new Exception('Server does not support STARTTLS.');
 		}
-	}	
+		if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+			throw new Exception('STARTTLS negotiation failed.');
+		}
+	}
 
 	/**
 	 * Authenticate the user via their chosen SASL authentication mechanism.
