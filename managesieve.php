@@ -8,6 +8,9 @@ class ManageSieve {
 	private $socket;
 
 	public $response;
+	public $status;
+	public $verbose_status;
+	public $error;
 	public $scripts;
 	public $active_script;
 
@@ -40,11 +43,33 @@ class ManageSieve {
 		$this->authenticate($sasl_mechanism, $username, $password);
 	}
 
-	private function check_response() {
-		$response_array = explode(' ', $this->response);
-		if (($response_array[0] == 'NO') || ($response_array[0] == 'BYE')) {
-			array_shift($response_array);
-			throw new Exception(implode(' ', $response_array));
+	private function check_status() {
+		/* Split raw response data into an array of lines. */
+		$response_lines = preg_split('/\r\n/', $this->response);
+		/* Filter out any empty strings. */
+		$response_lines = array_filter($response_lines);
+
+		/* The last line of the response should contain a valid status code. */
+		$response_status_array = explode(' ', end($response_lines));
+		$this->status = $response_status_array[0];
+
+		/* The rest of the line should contain a verbose status message. */
+		array_shift($response_status_array);
+		$this->verbose_status = implode(' ', $response_status_array);
+
+		/* All client queries are replied to with either an OK, NO, or BYE response. */
+		switch ($this->status) {
+			case 'OK':
+				$this->error = false;
+				break;
+			case 'NO':
+				$this->error = true;
+				break;
+			case 'BYE':
+				/* If the server returns 'BYE' we cannot proceed. */
+				throw new Exception('Server closed the connection.');
+			default:
+				throw new Exception("Server replied with unknown status {$this->status}.");
 		}
 	}
 
@@ -54,8 +79,7 @@ class ManageSieve {
 	 */
 	private function get_response() {
 		$this->response = fread($this->socket, 1024);
-		$this->check_response();
-		return $this->response;
+		$this->check_status();
 	}
 
 	/**
