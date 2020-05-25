@@ -7,11 +7,17 @@ class ManageSieve {
 	private $remote_address;
 	private $socket;
 
+	/* $response contains the raw data received from the ManageSieve server. */
 	public $response;
+	/* $status contains the response code (OK, NO, BYE) that the last command produced. */
 	public $status;
+	/* $verbose_status contains any extra information that came after $status. */
 	public $verbose_status;
+	/* $error is a boolean that indicates whether or not the last command was successful. */
 	public $error;
+	/* $scripts is an array of names of Sieve scripts the user has on the server. */
 	public $scripts;
+	/* $active_script contains the name of the user's active Sieve (if they have one). */
 	public $active_script;
 
 	/**
