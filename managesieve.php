@@ -6,7 +6,7 @@
 class ManageSieve {
 	private $socket;
 
-	/* $response contains the raw data received from the ManageSieve server. */
+	/* $response contains the data received from the ManageSieve server. */
 	public $response;
 	/* $status contains the response code (OK, NO, BYE) that the last command produced. */
 	public $status;
@@ -39,19 +39,17 @@ class ManageSieve {
 		$this->authenticate($sasl_mechanism, $username, $password);
 	}
 
-	private function check_status() {
-		/* Split raw response data into an array of lines. */
-		$response_lines = preg_split('/\r\n/', $this->response);
-		/* Filter out any empty strings. */
-		$response_lines = array_filter($response_lines);
-
-		/* The last line of the response should contain a valid status code. */
-		$response_status_array = explode(' ', end($response_lines));
-		$this->status = $response_status_array[0];
+	/**
+	 * This function should only be called from get_response().
+	 */
+	private function check_status($status_line) {
+		/* The status line should start with a valid status code. */
+		$status_line_array = explode(' ', $status_line);
+		$this->status = $status_line_array[0];
 
 		/* The rest of the line should contain a verbose status message. */
-		array_shift($response_status_array);
-		$this->verbose_status = implode(' ', $response_status_array);
+		array_shift($status_line_array);
+		$this->verbose_status = implode(' ', $status_line_array);
 
 		/* All client queries are replied to with either an OK, NO, or BYE response. */
 		switch ($this->status) {
@@ -82,8 +80,15 @@ class ManageSieve {
 	 * This function populates the $response variable. TODO: write better docs here.
 	 */
 	private function get_response() {
-		$this->response = fread($this->socket, 1024);
-		$this->check_status();
+		$raw_response = fread($this->socket, 1024);
+		/* Split raw response data into an array of lines. */
+		$response_lines = preg_split('/\r\n/', $raw_response);
+		/* Filter out any empty strings. */
+		$response_lines = array_filter($response_lines);
+		/* Send the last line of the response data to check_status() for processing. */
+		$this->check_status(array_pop($response_lines));
+		/* Reconstruct the cleaned response with normalized line breaks. */
+		$this->response = implode(PHP_EOL, $response_lines);
 	}
 
 	/**
