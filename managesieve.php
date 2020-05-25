@@ -28,8 +28,6 @@ class ManageSieve {
 			throw new Exception('Failed to connect to ManageSieve server.');
 		}
 
-		stream_set_timeout($this->socket, 15);
-
 		/* Read the intial banner. */
 		$this->get_response();
 
