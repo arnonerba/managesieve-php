@@ -92,7 +92,7 @@ class ManageSieve {
 	 * allow fwrite to be swapped out with something else if the need arises.
 	 */
 	private function send_line($line) {
-		fwrite($this->socket, "${line}\r\n");
+		fwrite($this->socket, "{$line}\r\n");
 		$this->get_response();
 	}
 
@@ -160,7 +160,7 @@ class ManageSieve {
 	 * This function implements the SETACTIVE command.
 	 */
 	public function set_active($script) {
-		$this->send_line("SETACTIVE \"${script}\"");
+		$this->send_line("SETACTIVE \"{$script}\"");
 		if (!$this->error) {
 			$this->list_scripts();
 		}
@@ -170,7 +170,7 @@ class ManageSieve {
 	 * This function implements the GETSCRIPT command.
 	 */
 	public function get_script($script) {
-		$this->send_line("GETSCRIPT \"${script}\"");
+		$this->send_line("GETSCRIPT \"{$script}\"");
 	}
 
 	/**
