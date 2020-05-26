@@ -63,7 +63,7 @@ class ManageSieve {
 				/* If the server returns 'BYE' we cannot proceed. */
 				throw new Exception('Server closed the connection.');
 			default:
-				throw new Exception("Server replied with unknown status {$this->status}.");
+				throw new Exception("Server replied with unknown status ({$this->status}).");
 		}
 	}
 
