@@ -62,14 +62,6 @@ class ManageSieve {
 			case 'BYE':
 				/* If the server returns 'BYE' we cannot proceed. */
 				throw new Exception('Server closed the connection.');
-			case '"VXNlcm5hbWU6"':
-				/* LOGIN mechanism sends 'Username:' prompt in Base64. */
-				$this->error = false;
-				break;
-			case '"UGFzc3dvcmQ6"':
-				/* LOGIN mechanism sends 'Password:' prompt in Base64. */
-				$this->error = false;
-				break;
 			default:
 				throw new Exception("Server replied with unknown status {$this->status}.");
 		}
@@ -80,9 +72,14 @@ class ManageSieve {
 	 * This function populates the $response variable. TODO: write better docs here.
 	 */
 	private function get_response() {
-		/* Read a line from the socket. */
+		/* Ignore various responses that the SASL login routines return. */
+		$blacklisted_responses = array('""', '"VXNlcm5hbWU6"', '"UGFzc3dvcmQ6"');
 		$line = rtrim(fgets($this->socket), "\r\n");
-		while((substr($line, 0, 2) != 'OK') && (substr($line, 0, 2) != 'NO') && (substr($line, 0, 3) != 'BYE') && (strpos($line, 'VXNlcm5hbWU6') === false) && (strpos($line, 'UGFzc3dvcmQ6') === false)) {
+		if (in_array($line, $blacklisted_responses)) {
+			return;
+		}
+		/* All client queries are replied to with either an OK, NO, or BYE response. */
+		while((substr($line, 0, 2) != 'OK') && (substr($line, 0, 2) != 'NO') && (substr($line, 0, 3) != 'BYE')) {
 			$response_lines[] = $line;
 			$line = rtrim(fgets($this->socket), "\r\n");
 		}
