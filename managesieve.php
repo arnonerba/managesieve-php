@@ -80,9 +80,13 @@ class ManageSieve {
 	 * This function populates the $response variable. TODO: write better docs here.
 	 */
 	private function get_response() {
-		$raw_response = fread($this->socket, 1024);
-		/* Split raw response data into an array of lines. */
-		$response_lines = preg_split('/\r\n/', $raw_response);
+		/* Read a line from the socket. */
+		$line = rtrim(fgets($this->socket), "\r\n");
+		while((substr($line, 0, 2) != 'OK') && (substr($line, 0, 2) != 'NO') && (substr($line, 0, 3) != 'BYE') && (strpos($line, 'VXNlcm5hbWU6') === false) && (strpos($line, 'UGFzc3dvcmQ6') === false)) {
+			$response_lines[] = $line;
+			$line = rtrim(fgets($this->socket), "\r\n");
+		}
+		$response_lines[] = $line;
 		/* Filter out any empty strings. */
 		$response_lines = array_filter($response_lines);
 		/* Send the last line of the response data to check_status() for processing. */
