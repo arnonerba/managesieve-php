@@ -78,12 +78,14 @@ class ManageSieve {
 		if (in_array($line, $blacklisted_responses)) {
 			return;
 		}
+
 		/* All client queries are replied to with either an OK, NO, or BYE response. */
 		while((substr($line, 0, 2) != 'OK') && (substr($line, 0, 2) != 'NO') && (substr($line, 0, 3) != 'BYE')) {
 			$response_lines[] = $line;
 			$line = rtrim(fgets($this->socket), "\r\n");
 		}
 		$response_lines[] = $line;
+
 		/* Filter out any empty strings. */
 		$response_lines = array_filter($response_lines);
 		/* Send the last line of the response data to check_status() for processing. */
