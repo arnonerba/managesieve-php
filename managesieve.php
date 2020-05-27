@@ -177,6 +177,7 @@ class ManageSieve {
 	 */
 	public function get_script($script) {
 		$this->send_line("GETSCRIPT \"{$script}\"");
+		return substr($this->response, strpos($this->response, PHP_EOL) + 1);
 	}
 
 	/**
