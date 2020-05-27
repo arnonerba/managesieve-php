@@ -165,8 +165,8 @@ class ManageSieve {
 			/* Get the active script (if there is one). */
 			$this->active_script = implode(array_filter($this->scripts, function($i) { return preg_match('/ \bACTIVE\b$/i', $i); }));
 			/* Clean up both $scripts and $active_script. */
-			$this->scripts = preg_replace('/ \bACTIVE\b$/i', '', $this->scripts);
-			$this->active_script = preg_replace('/ \bACTIVE\b$/i', '', $this->active_script);
+			$this->scripts = array_map(function($i) { return trim($i, '"'); }, preg_replace('/ \bACTIVE\b$/i', '', $this->scripts));
+			$this->active_script = trim(preg_replace('/ \bACTIVE\b$/i', '', $this->active_script), '"');
 		}
 	}
 
