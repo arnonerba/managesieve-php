@@ -108,11 +108,19 @@ class ManageSieve {
 	 * This function implements the STARTTLS command and negotiates a TLS connection.
 	 */
 	private function starttls() {
+		/* PHP 5.6 redefined the CRYPTO_METHOD_* constants. */
+		if (defined('STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT')) {
+			$crypto_type = STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+		} else {
+			$crypto_type = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+		}
+
 		$this->send_line('STARTTLS');
 		if ($this->error) {
 			throw new Exception('Server does not support STARTTLS.');
 		}
-		if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+
+		if (!stream_socket_enable_crypto($this->socket, true, $crypto_type)) {
 			throw new Exception('STARTTLS negotiation failed.');
 		}
 	}
