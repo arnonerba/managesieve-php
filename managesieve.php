@@ -187,6 +187,13 @@ class ManageSieve {
 	}
 
 	/**
+	 * This function implements the HAVESPACE command.
+	 */
+	public function have_space($script, $size) {
+		$this->send_line("HAVESPACE \"{$script}\" {$size}");
+	}
+
+	/**
 	 * This function implements the NOOP command.
 	 */
 	public function noop($tag) {
