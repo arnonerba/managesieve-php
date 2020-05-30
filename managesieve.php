@@ -195,6 +195,18 @@ class ManageSieve {
 	}
 
 	/**
+	 * This function implements the PUTSCRIPT command.
+	 */
+	public function put_script($script, $content) {
+		$length = strlen($content);
+		$this->have_space($script, $length);
+		if (!$this->error) {
+			$this->send_line("PUTSCRIPT \"{$script}\" {{$length}+}\r\n{$content}");
+			$this->list_scripts();
+		}
+	}
+
+	/**
 	 * This function implements the NOOP command.
 	 */
 	public function noop($tag) {
