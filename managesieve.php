@@ -183,6 +183,7 @@ class ManageSieve {
 	 */
 	public function get_script($script) {
 		$this->send_line("GETSCRIPT \"{$script}\"");
+		/* Return everything except for the script length tag that appears on the first line of the response. */
 		return substr($this->response, strpos($this->response, PHP_EOL) + 1);
 	}
 
