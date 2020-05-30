@@ -190,8 +190,8 @@ class ManageSieve {
 	/**
 	 * This function implements the HAVESPACE command.
 	 */
-	public function have_space($script, $size) {
-		$this->send_line("HAVESPACE \"{$script}\" {$size}");
+	public function have_space($script, $length) {
+		$this->send_line("HAVESPACE \"{$script}\" {$length}");
 	}
 
 	/**
