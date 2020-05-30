@@ -86,8 +86,6 @@ class ManageSieve {
 		}
 		$response_lines[] = $line;
 
-		/* Filter out any empty strings. */
-		$response_lines = array_filter($response_lines);
 		/* Send the last line of the response data to check_status() for processing. */
 		$this->check_status(array_pop($response_lines));
 		/* Reconstruct the cleaned response with normalized line breaks. */
