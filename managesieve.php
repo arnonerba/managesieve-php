@@ -65,6 +65,17 @@ class ManageSieve {
 			default:
 				throw new Exception("Server replied with unknown status ({$this->status}).");
 		}
+
+		/* Some commands return extra verbose status lines. The number of chars to read is enclosed in braces. */
+		$start = strpos($this->verbose_status, '{');
+		$end = strpos($this->verbose_status, '}');
+		if (($start !== false) && ($end !== false)) {
+			$length = substr($this->verbose_status, $start + 1, $end - $start - 1);
+			unset($this->verbose_status);
+			for ($i = 0; $i < $length; $i++) {
+				$this->verbose_status .= fgetc($this->socket);
+			}
+		}
 	}
 
 	/**
