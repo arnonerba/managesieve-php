@@ -128,27 +128,6 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function implements the STARTTLS command and negotiates a TLS connection.
-	 */
-	private function starttls() {
-		/* PHP 5.6 redefined the CRYPTO_METHOD_* constants. */
-		if (defined('STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT')) {
-			$crypto_type = STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-		} else {
-			$crypto_type = STREAM_CRYPTO_METHOD_TLS_CLIENT;
-		}
-
-		$this->send_line('STARTTLS');
-		if ($this->error) {
-			throw new Exception('Server does not support STARTTLS.');
-		}
-
-		if (!stream_socket_enable_crypto($this->socket, true, $crypto_type)) {
-			throw new Exception('STARTTLS negotiation failed.');
-		}
-	}
-
-	/**
 	 * Authenticate the user via their chosen SASL authentication mechanism.
 	 * An exception will be thrown if the server does not support the chosen
 	 * mechanism or if the user's credentials are incorrect.
@@ -178,10 +157,49 @@ class ManageSieve {
 	}
 
 	/**
+	 * This function implements the STARTTLS command and negotiates a TLS connection.
+	 */
+	private function starttls() {
+		/* PHP 5.6 redefined the CRYPTO_METHOD_* constants. */
+		if (defined('STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT')) {
+			$crypto_type = STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+		} else {
+			$crypto_type = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+		}
+
+		$this->send_line('STARTTLS');
+		if ($this->error) {
+			throw new Exception('Server does not support STARTTLS.');
+		}
+
+		if (!stream_socket_enable_crypto($this->socket, true, $crypto_type)) {
+			throw new Exception('STARTTLS negotiation failed.');
+		}
+	}
+
+	/**
 	 * This function implements the CAPABILITY command.
 	 */
 	public function capability() {
 		$this->send_line('CAPABILITY');
+	}
+
+	/**
+	 * This function implements the HAVESPACE command.
+	 */
+	public function have_space($script, $length) {
+		$this->send_line("HAVESPACE \"{$script}\" {$length}");
+	}
+
+	/**
+	 * This function implements the PUTSCRIPT command.
+	 */
+	public function put_script($script, $content) {
+		$length = strlen($content);
+		$this->have_space($script, $length);
+		if (!$this->error) {
+			$this->send_line("PUTSCRIPT \"{$script}\" {{$length}+}\r\n{$content}");
+		}
 	}
 
 	/**
@@ -214,24 +232,6 @@ class ManageSieve {
 		$this->send_line("GETSCRIPT \"{$script}\"");
 		/* Return everything except for the script length tag that appears on the first line of the response. */
 		return substr($this->response, strpos($this->response, PHP_EOL) + 1);
-	}
-
-	/**
-	 * This function implements the HAVESPACE command.
-	 */
-	public function have_space($script, $length) {
-		$this->send_line("HAVESPACE \"{$script}\" {$length}");
-	}
-
-	/**
-	 * This function implements the PUTSCRIPT command.
-	 */
-	public function put_script($script, $content) {
-		$length = strlen($content);
-		$this->have_space($script, $length);
-		if (!$this->error) {
-			$this->send_line("PUTSCRIPT \"{$script}\" {{$length}+}\r\n{$content}");
-		}
 	}
 
 	/**
