@@ -3,8 +3,8 @@
 /**
  * ManageSieve-PHP
  *
- * A PHP client for ManageSieve (RFC 5804). Releases and additional information can be
- * found at https://github.com/arnonerba/managesieve-php.
+ * A PHP client for ManageSieve (RFC 5804). Releases and additional information can be found at
+ * https://github.com/arnonerba/managesieve-php.
  *
  * @author arnonerba
  * @package ManageSieve-PHP
@@ -129,8 +129,9 @@ class ManageSieve {
 	}
 
 	/**
-	 * Authenticate the user via their chosen SASL authentication mechanism. An exception will be thrown
-	 * if the server (or client) does not support the chosen mechanism or if the credentials are incorrect.
+	 * Authenticate the user via their chosen SASL authentication mechanism. An exception will
+	 * be thrown if the server (or client) does not support the chosen mechanism or if the users'
+	 * credentials are incorrect.
 	 *
 	 * @param string $sasl_mechanism The desired SASL mechanism (i.e. PLAIN, LOGIN)
 	 * @param string $username       User to authenticate as
@@ -161,8 +162,8 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function implements the STARTTLS command and negotiates a TLS connection. If it fails
-	 * to negotiate a secure connection it will throw an exception.
+	 * This function implements the STARTTLS command and negotiates a TLS connection. If it
+	 * fails to negotiate a secure connection it will throw an exception.
 	 */
 	private function starttls() {
 		/* PHP 5.6 redefined the CRYPTO_METHOD_* constants. */
@@ -193,7 +194,7 @@ class ManageSieve {
 	 * This function implements the HAVESPACE command.
 	 *
 	 * @param string $script The name of a Sieve script
-	 * @param int    $length Length of the Sieve script provided by $script
+	 * @param int    $length Length of the Sieve script referenced by $script
 	 */
 	public function have_space($script, $length) {
 		$this->send_line("HAVESPACE \"{$script}\" {$length}");
@@ -202,7 +203,7 @@ class ManageSieve {
 	/**
 	 * This function implements the PUTSCRIPT command.
 	 *
-	 * @param string $script  The name of a Sieve script
+	 * @param string $script  The name of a Sieve script to upload
 	 * @param string $content A Sieve script to upload to the server as $script
 	 */
 	public function put_script($script, $content) {
@@ -214,7 +215,8 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function implements the LISTSCRIPTS command. If successful it will set $scripts and $active_script.
+	 * This function implements the LISTSCRIPTS command. If successful it will set $scripts
+	 * and $active_script.
 	 */
 	public function list_scripts() {
 		$this->send_line('LISTSCRIPTS');
