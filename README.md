@@ -1,5 +1,5 @@
 # ManageSieve-PHP
-An unfinished PHP client for ManageSieve ([RFC 5804](https://tools.ietf.org/html/rfc5804)). This project is loosely based on Dan Ellis's PHP 4-era project, [sieve-php](http://sieve-php.sourceforge.net/). It is also inspired by [ProtonMail/libsieve-php](https://github.com/ProtonMail/libsieve-php) and [zambodaniel/managesieve](https://github.com/zambodaniel/managesieve).
+A PHP client for ManageSieve ([RFC 5804](https://tools.ietf.org/html/rfc5804)). This project is loosely based on Dan Ellis's PHP 4-era project, [sieve-php](http://sieve-php.sourceforge.net/). It is also inspired by [ProtonMail/libsieve-php](https://github.com/ProtonMail/libsieve-php) and [zambodaniel/managesieve](https://github.com/zambodaniel/managesieve).
 
 ## Usage
 
