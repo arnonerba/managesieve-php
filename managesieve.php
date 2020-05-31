@@ -8,7 +8,7 @@
  *
  * @author arnonerba
  * @package ManageSieve-PHP
- * @version 0.1.0
+ * @version 1.0.0
  */
 class ManageSieve {
 	private $socket;
