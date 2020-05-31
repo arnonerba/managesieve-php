@@ -178,6 +178,13 @@ class ManageSieve {
 	}
 
 	/**
+	 * This function implements the CAPABILITY command.
+	 */
+	public function capability() {
+		$this->send_line('CAPABILITY');
+	}
+
+	/**
 	 * This function implements the LISTSCRIPTS command.
 	 */
 	public function list_scripts() {
