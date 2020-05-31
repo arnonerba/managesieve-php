@@ -10,31 +10,27 @@
  * @package ManageSieve-PHP
  * @version 0.1.0
  */
-
-/**
- * The ManageSieve class exposes several public variables and functions:
- *
- * $response: A minimally processed version of the data received from the ManageSieve server.
- * $status: The succinct response code (OK, NO, BYE) that the last command produced.
- * $verbose_status: Any extra information that came after the response code found in $status.
- * $error: A boolean that indicates whether or not the last command was successful.
- * $scripts: An array of Sieve scripts (names only) that the user has on the server.
- * $active_script: The name of the user's active Sieve script (if one exists -- it may not).
- *
- *
- */
 class ManageSieve {
 	private $socket;
-
-	public $response;
-	public $status;
-	public $verbose_status;
-	public $error;
-	public $scripts;
-	public $active_script;
+	/**
+	 * @var string $response       Processed version of the data received from the ManageSieve server
+	 * @var string $status         Succinct response code (OK, NO, BYE) that the last command produced
+	 * @var string $verbose_status Extra information that came after the response code found in $status
+	 * @var bool   $error          Boolean that indicates whether or not the last command was successful
+	 * @var array  $scripts        Array of Sieve scripts (names only) that the user has on the server
+	 * @var string $active_script  Name of the user's active Sieve script (if one exists)
+	 */
+	public $response, $status, $verbose_status, $error, $scripts, $active_script;
 
 	/**
-	 * Constructor for the ManageSieve class.
+	 * Constructor for the ManageSieve class. If it encounters an unrecoverable error it will
+	 * throw an exception.
+	 *
+	 * @param string $hostname       FQDN of the ManageSieve server
+	 * @param int    $port           Port the ManageSieve service is running on (generally 4190)
+	 * @param string $sasl_mechanism The desired SASL mechanism (i.e. PLAIN, LOGIN)
+	 * @param string $username       User to authenticate as
+	 * @param string $password       Password of the user $username
 	 */
 	public function __construct($hostname, $port, $sasl_mechanism, $username, $password) {
 		$this->socket = stream_socket_client("tcp://{$hostname}:{$port}");
@@ -54,7 +50,11 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function should only be called from get_response().
+	 * Parse the status line returned by the server. This function should only be called from
+	 * get_response(). If it encounters an unrecoverable error it will throw an exception. If
+	 * successful it will set $status, $verbose_status, and $error.
+	 *
+	 * @param string $status_line The first line of a possibly multi-line status response
 	 */
 	private function check_status($status_line) {
 		/* The status line should start with a valid status code. */
@@ -93,8 +93,8 @@ class ManageSieve {
 	}
 
 	/**
-	 * A function to abstract away the details of receiving data from the server.
-	 * This function populates the $response variable. TODO: write better docs here.
+	 * Get data from the server. This function normalizes line endings and sets $response. The
+	 * response is read in a line-by-line fashion so that lengthy responses can be fully captured.
 	 */
 	private function get_response() {
 		/* Ignore various responses that the SASL login routines return. */
@@ -118,9 +118,10 @@ class ManageSieve {
 	}
 
 	/**
-	 * A function to abstract away the details of sending data to the server.
-	 * This way, we ensure the proper CRLF sequence is always sent, and we
-	 * allow fwrite to be swapped out with something else if the need arises.
+	 * Send data to the server. This function ensures that the required CRLF sequence is always
+	 * sent. It also calls get_response() to immediately receive and process the server's response.
+	 *
+	 * @param string $line The line of text to send to the server
 	 */
 	private function send_line($line) {
 		fwrite($this->socket, "{$line}\r\n");
@@ -128,9 +129,12 @@ class ManageSieve {
 	}
 
 	/**
-	 * Authenticate the user via their chosen SASL authentication mechanism.
-	 * An exception will be thrown if the server does not support the chosen
-	 * mechanism or if the user's credentials are incorrect.
+	 * Authenticate the user via their chosen SASL authentication mechanism. An exception will be thrown
+	 * if the server (or client) does not support the chosen mechanism or if the credentials are incorrect.
+	 *
+	 * @param string $sasl_mechanism The desired SASL mechanism (i.e. PLAIN, LOGIN)
+	 * @param string $username       User to authenticate as
+	 * @param string $password       Password of the user $username
 	 */
 	private function authenticate($sasl_mechanism, $username, $password) {
 		switch ($sasl_mechanism) {
@@ -157,7 +161,8 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function implements the STARTTLS command and negotiates a TLS connection.
+	 * This function implements the STARTTLS command and negotiates a TLS connection. If it fails
+	 * to negotiate a secure connection it will throw an exception.
 	 */
 	private function starttls() {
 		/* PHP 5.6 redefined the CRYPTO_METHOD_* constants. */
@@ -186,6 +191,9 @@ class ManageSieve {
 
 	/**
 	 * This function implements the HAVESPACE command.
+	 *
+	 * @param string $script The name of a Sieve script
+	 * @param int    $length Length of the Sieve script provided by $script
 	 */
 	public function have_space($script, $length) {
 		$this->send_line("HAVESPACE \"{$script}\" {$length}");
@@ -193,6 +201,9 @@ class ManageSieve {
 
 	/**
 	 * This function implements the PUTSCRIPT command.
+	 *
+	 * @param string $script  The name of a Sieve script
+	 * @param string $content A Sieve script to upload to the server as $script
 	 */
 	public function put_script($script, $content) {
 		$length = strlen($content);
@@ -203,7 +214,7 @@ class ManageSieve {
 	}
 
 	/**
-	 * This function implements the LISTSCRIPTS command.
+	 * This function implements the LISTSCRIPTS command. If successful it will set $scripts and $active_script.
 	 */
 	public function list_scripts() {
 		$this->send_line('LISTSCRIPTS');
@@ -220,6 +231,8 @@ class ManageSieve {
 
 	/**
 	 * This function implements the SETACTIVE command.
+	 *
+	 * @param string $script The name of a Sieve script to make active
 	 */
 	public function set_active($script) {
 		$this->send_line("SETACTIVE \"{$script}\"");
@@ -227,6 +240,10 @@ class ManageSieve {
 
 	/**
 	 * This function implements the GETSCRIPT command.
+	 *
+	 * @param string $script The name of a Sieve script to retrieve
+	 *
+	 * @return string The content of the specified Sieve script
 	 */
 	public function get_script($script) {
 		$this->send_line("GETSCRIPT \"{$script}\"");
@@ -236,6 +253,8 @@ class ManageSieve {
 
 	/*
 	 * This function implements the DELETESCRIPT command.
+	 *
+	 * @param string $script The name of a Sieve script to delete
 	 */
 	public function delete_script($script) {
 		$this->send_line("DELETESCRIPT \"{$script}\"");
@@ -243,6 +262,9 @@ class ManageSieve {
 
 	/*
 	 * This function implements the RENAMESCRIPT command.
+	 *
+	 * @param string $old_script The name of an existing Sieve script to rename
+	 * @param string $new_script The desired new name of $old_script
 	 */
 	public function rename_script($old_script, $new_script) {
 		$this->send_line("RENAMESCRIPT \"{$old_script}\" \"{$new_script}\"");
@@ -250,6 +272,8 @@ class ManageSieve {
 
 	/*
 	 * This function implements the CHECKSCRIPT command.
+	 *
+	 * @param string $content A Sieve script to check for syntax errors
 	 */
 	public function check_script($content) {
 		$length = strlen($content);
@@ -268,8 +292,8 @@ class ManageSieve {
 	}
 
 	/**
-	 * Destructor for the ManageSieve class. A LOGOUT command is politely
-	 * issued to the server to close the connection before the socket is shut down.
+	 * Destructor for the ManageSieve class. Per the RFC, a LOGOUT command is issued to the server
+	 * to close the connection before the socket is shut down.
 	 */
 	public function __destruct() {
 		$this->send_line('LOGOUT');
