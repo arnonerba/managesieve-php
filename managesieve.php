@@ -202,9 +202,6 @@ class ManageSieve {
 		$this->have_space($script, $length);
 		if (!$this->error) {
 			$this->send_line("PUTSCRIPT \"{$script}\" {{$length}+}\r\n{$content}");
-			if (!$this->error) {
-				$this->list_scripts();
-			}
 		}
 	}
 
