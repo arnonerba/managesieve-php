@@ -248,6 +248,14 @@ class ManageSieve {
 		$this->send_line("RENAMESCRIPT \"{$old_script}\" \"{$new_script}\"");
 	}
 
+	/*
+	 * This function implements the CHECKSCRIPT command.
+	 */
+	public function check_script($content) {
+		$length = strlen($content);
+		$this->send_line("CHECKSCRIPT {{$length}+}\r\n{$content}");
+	}
+
 	/**
 	 * This function implements the NOOP command.
 	 */
