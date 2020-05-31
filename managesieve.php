@@ -241,6 +241,13 @@ class ManageSieve {
 		$this->send_line("DELETESCRIPT \"{$script}\"");
 	}
 
+	/*
+	 * This function implements the RENAMESCRIPT command.
+	 */
+	public function rename_script($old_script, $new_script) {
+		$this->send_line("RENAMESCRIPT \"{$old_script}\" \"{$new_script}\"");
+	}
+
 	/**
 	 * This function implements the NOOP command.
 	 */
