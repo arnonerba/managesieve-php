@@ -234,6 +234,13 @@ class ManageSieve {
 		return substr($this->response, strpos($this->response, PHP_EOL) + 1);
 	}
 
+	/*
+	 * This function implements the DELETESCRIPT command.
+	 */
+	public function delete_script($script) {
+		$this->send_line("DELETESCRIPT \"{$script}\"");
+	}
+
 	/**
 	 * This function implements the NOOP command.
 	 */
