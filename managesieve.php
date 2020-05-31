@@ -1,22 +1,36 @@
 <?php
 
 /**
- * This file defines the ManageSieve class.
+ * ManageSieve-PHP
+ *
+ * A PHP client for ManageSieve (RFC 5804). Releases and additional information can be
+ * found at https://github.com/arnonerba/managesieve-php.
+ *
+ * @author arnonerba
+ * @package ManageSieve-PHP
+ * @version 0.1.0
+ */
+
+/**
+ * The ManageSieve class exposes several public variables and functions:
+ *
+ * $response: A minimally processed version of the data received from the ManageSieve server.
+ * $status: The succinct response code (OK, NO, BYE) that the last command produced.
+ * $verbose_status: Any extra information that came after the response code found in $status.
+ * $error: A boolean that indicates whether or not the last command was successful.
+ * $scripts: An array of Sieve scripts (names only) that the user has on the server.
+ * $active_script: The name of the user's active Sieve script (if one exists -- it may not).
+ *
+ *
  */
 class ManageSieve {
 	private $socket;
 
-	/* $response contains the data received from the ManageSieve server. */
 	public $response;
-	/* $status contains the response code (OK, NO, BYE) that the last command produced. */
 	public $status;
-	/* $verbose_status contains any extra information that came after $status. */
 	public $verbose_status;
-	/* $error is a boolean that indicates whether or not the last command was successful. */
 	public $error;
-	/* $scripts is an array of names of Sieve scripts the user has on the server. */
 	public $scripts;
-	/* $active_script contains the name of the user's active Sieve (if they have one). */
 	public $active_script;
 
 	/**
